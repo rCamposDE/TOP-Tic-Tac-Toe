@@ -1,0 +1,10 @@
+p {
+  width: 5rem;
+  height: 5rem;
+  border: 1px black solid;
+  background-color: grey;
+}
+
+#DB {
+  display: flex;
+}
