@@ -34,11 +34,15 @@ const GameBoard = () => {
       console.log(`${i} ${gameBoard[i].getValue()}`);
     }
   };
-  return { gameBoard, clean, fitVal, print };
+  const getValueI = (i) => gameBoard[i].getValue();
+
+  return { gameBoard, clean, fitVal, print, getValueI };
 };
 
 const status = document.getElementById("status");
+const turn = document.getElementById("turn");
 
+const squares = document.querySelectorAll(".square");
 const Pos01 = document.getElementById("0");
 const Pos02 = document.getElementById("1");
 const Pos03 = document.getElementById("2");
@@ -49,26 +53,87 @@ const Pos21 = document.getElementById("6");
 const Pos22 = document.getElementById("7");
 const Pos23 = document.getElementById("8");
 
-const Player = (name, choice) => {
-  const selectMove = (num) => {};
-  return { name, choice, selectMove };
-};
-
-//let Player1 = Player("Player X", "x");
-//let Player2 = Player("Player O", "o");
-
 let gameBoard = GameBoard();
-let squares = document.querySelectorAll(".square");
+let Xterm = true;
+let moves = 0;
+let gameOver = false;
 
 squares.forEach((element) => {
   element.addEventListener("click", function () {
-    element.textContent = "X";
-    gameBoard.fitVal(Number(element.id), "x");
+    if (element.textContent === "" && gameOver === false) {
+      if (Xterm) {
+        element.textContent = "X";
+        gameBoard.fitVal(Number(element.id), "x");
+        turn.textContent = "O follow´s";
+      } else {
+        element.textContent = "O";
+        gameBoard.fitVal(Number(element.id), "o");
+        turn.textContent = "X follow´s";
+      }
+      isWinner();
+      Xterm = !Xterm;
+    }
   });
 });
 
-//status.innerText = "Player X moves";
+function isWinner() {
+  moves++;
+  if (moves > 2) {
+    for (let y = 0; y < 3; y++) {
+      let elementWinner = gameBoard.getValueI(y * 3);
+      if (elementWinner !== "") {
+        if (
+          elementWinner === gameBoard.getValueI(y * 3 + 1) &&
+          elementWinner === gameBoard.getValueI(y * 3 + 2)
+        ) {
+          EndGame(elementWinner);
+        }
+      }
+    }
+    for (let y = 0; y < 3; y++) {
+      let elementWinner = gameBoard.getValueI(y);
+      if (elementWinner !== "") {
+        if (
+          elementWinner === gameBoard.getValueI(y + 3) &&
+          elementWinner === gameBoard.getValueI(y + 6)
+        ) {
+          EndGame(elementWinner);
+        }
+      }
+    }
+    if (
+      gameBoard.getValueI(0) !== "" &&
+      gameBoard.getValueI(0) === gameBoard.getValueI(4) &&
+      gameBoard.getValueI(0) === gameBoard.getValueI(8)
+    ) {
+      EndGame(gameBoard.getValueI(0));
+    }
+    if (
+      gameBoard.getValueI(2) !== "" &&
+      gameBoard.getValueI(2) === gameBoard.getValueI(4) &&
+      gameBoard.getValueI(2) === gameBoard.getValueI(6)
+    ) {
+      EndGame(gameBoard.getValueI(2));
+    }
+  }
+  if (moves === 9 && gameOver === false) {
+    gameOver = true;
+    status.textContent = `This is a draw`;
+  }
+}
 
-//} while();
-// quien empieza
-// como se gana
+function EndGame(valWinner) {
+  gameOver = true;
+  status.textContent = `The Winner is ${valWinner}`;
+  turn.textContent = "Congratulations!!!";
+}
+
+function reset() {
+  status.textContent = "Play the Tic-Tac-Toe game";
+  turn.textContent = "X starts";
+  gameBoard.clean();
+  Xterm = true;
+  moves = 0;
+  gameOver = false;
+  squares.forEach((element) => (element.textContent = ""));
+}
