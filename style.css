@@ -1,10 +1,40 @@
+* {
+  text-align: center;
+}
+#DB {
+  display: grid;
+  grid-template-columns: repeat(3, 5rem);
+  grid-template-rows: repeat(3, 5rem);
+  gap: 0px;
+  width: 15rem;
+  height: 15rem;
+  align-items: center;
+  box-shadow: 3px 3px 5px black;
+}
+#boardGame {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+
 p {
   width: 5rem;
   height: 5rem;
   border: 1px black solid;
   background-color: grey;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: xx-large;
 }
 
-#DB {
-  display: flex;
+#Choose {
+  display: none;
+  justify-content: space-around;
+}
+#Choose > * {
+  border: 2px grey solid;
+  text-align: center;
+  padding: 0.5rem;
+  width: 4rem;
 }

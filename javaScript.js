@@ -41,7 +41,6 @@ const GameBoard = () => {
 
 const status = document.getElementById("status");
 const turn = document.getElementById("turn");
-
 const squares = document.querySelectorAll(".square");
 const Pos01 = document.getElementById("0");
 const Pos02 = document.getElementById("1");
@@ -57,6 +56,8 @@ let gameBoard = GameBoard();
 let Xterm = true;
 let moves = 0;
 let gameOver = false;
+
+const playTTT = (() => {})();
 
 squares.forEach((element) => {
   element.addEventListener("click", function () {
@@ -129,7 +130,7 @@ function EndGame(valWinner) {
 }
 
 function reset() {
-  status.textContent = "Play the Tic-Tac-Toe game";
+  status.textContent = `Choose "X" or "O", remember always start the "X"`;
   turn.textContent = "X starts";
   gameBoard.clean();
   Xterm = true;
