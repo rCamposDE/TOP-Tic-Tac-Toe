@@ -1,140 +1,145 @@
-const Board = () => {
-  let value = "";
-  const fitValue = (val) => {
-    if (val === "x" || val === "o") {
-      value = val;
-    }
-  };
-  const cleanValue = () => {
-    value = "";
-  };
-  const getValue = () => value;
-  return { fitValue, getValue, cleanValue };
-};
+(function () {
+  // You can do this a factory function and avoid use so many this!!!!
+  playTTT = {
+    gameBoard: [],
+    Xterm: true,
+    moves: 0,
+    gameOver: false,
 
-const GameBoard = () => {
-  //Here we have the GameBoard
-  let gameBoard = [];
-  for (let i = 0; i < 9; i++) {
-    let board = Board();
-    gameBoard.push(board);
-  }
-  const clean = () => {
-    gameBoard.forEach((element) => {
-      element.cleanValue();
-    });
-  };
-  const fitVal = (num, x) => {
-    if (!isNaN(num)) {
-      gameBoard[num].fitValue(x);
-    }
-  };
-  const print = () => {
-    for (let i = 0; i < 9; i++) {
-      console.log(`${i} ${gameBoard[i].getValue()}`);
-    }
-  };
-  const getValueI = (i) => gameBoard[i].getValue();
+    init: function () {
+      this.createBoard();
+      this.cacheDOM();
+      this.bindEvents();
+    },
 
-  return { gameBoard, clean, fitVal, print, getValueI };
-};
+    cacheDOM: function () {
+      this.status = document.getElementById("status");
+      this.turn = document.getElementById("turn");
+      this.squares = document.querySelectorAll(".square");
+      this.btnReset = document.getElementById("reset");
+    },
 
-const status = document.getElementById("status");
-const turn = document.getElementById("turn");
-const squares = document.querySelectorAll(".square");
-const Pos01 = document.getElementById("0");
-const Pos02 = document.getElementById("1");
-const Pos03 = document.getElementById("2");
-const Pos11 = document.getElementById("3");
-const Pos12 = document.getElementById("4");
-const Pos13 = document.getElementById("5");
-const Pos21 = document.getElementById("6");
-const Pos22 = document.getElementById("7");
-const Pos23 = document.getElementById("8");
-
-let gameBoard = GameBoard();
-let Xterm = true;
-let moves = 0;
-let gameOver = false;
-
-const playTTT = (() => {})();
-
-squares.forEach((element) => {
-  element.addEventListener("click", function () {
-    if (element.textContent === "" && gameOver === false) {
-      if (Xterm) {
-        element.textContent = "X";
-        gameBoard.fitVal(Number(element.id), "x");
-        turn.textContent = "O follow´s";
-      } else {
-        element.textContent = "O";
-        gameBoard.fitVal(Number(element.id), "o");
-        turn.textContent = "X follow´s";
+    createBoard: function () {
+      for (let i = 0; i < 9; i++) {
+        this.gameBoard.push(this.Board());
       }
-      isWinner();
-      Xterm = !Xterm;
-    }
-  });
-});
+    },
 
-function isWinner() {
-  moves++;
-  if (moves > 2) {
-    for (let y = 0; y < 3; y++) {
-      let elementWinner = gameBoard.getValueI(y * 3);
-      if (elementWinner !== "") {
+    bindEvents: function () {
+      this.squares.forEach((element) => {
+        element.addEventListener(
+          "click",
+          function () {
+            if (element.textContent === "" && this.gameOver === false) {
+              if (this.Xterm) {
+                element.textContent = "X";
+                this.gameBoard[Number(element.id)].fitValue("x");
+                this.turn.textContent = "O follow´s";
+              } else {
+                element.textContent = "O";
+                this.gameBoard[Number(element.id)].fitValue("o");
+                turn.textContent = "X follow´s";
+              }
+              this.isWinner();
+              this.Xterm = !this.Xterm;
+            }
+          }.bind(this)
+        );
+      });
+
+      this.btnReset.addEventListener("click", this.reset.bind(this));
+    },
+
+    Board: function () {
+      let value = "";
+      const fitValue = (val) => {
+        if (val === "x" || val === "o") {
+          value = val;
+        }
+      };
+      const cleanValue = () => {
+        value = "";
+      };
+      const getValue = () => value;
+      return { fitValue, getValue, cleanValue };
+    },
+
+    isWinner: function () {
+      this.moves++;
+      if (this.moves > 2) {
+        for (let y = 0; y < 3; y++) {
+          let elementWinner = this.gameBoard[y * 3].getValue();
+          if (elementWinner !== "") {
+            if (
+              elementWinner === this.gameBoard[y * 3 + 1].getValue() &&
+              elementWinner === this.gameBoard[y * 3 + 2].getValue()
+            ) {
+              this.EndGame(elementWinner, y * 3, y * 3 + 1, y * 3 + 2);
+            }
+          }
+        }
+        for (let y = 0; y < 3; y++) {
+          let elementWinner = this.gameBoard[y].getValue();
+          if (elementWinner !== "") {
+            if (
+              elementWinner === this.gameBoard[y + 3].getValue() &&
+              elementWinner === this.gameBoard[y + 6].getValue()
+            ) {
+              this.EndGame(elementWinner, y, y + 3, y + 6);
+            }
+          }
+        }
         if (
-          elementWinner === gameBoard.getValueI(y * 3 + 1) &&
-          elementWinner === gameBoard.getValueI(y * 3 + 2)
+          this.gameBoard[0].getValue() !== "" &&
+          this.gameBoard[0].getValue() === this.gameBoard[4].getValue() &&
+          this.gameBoard[0].getValue() === this.gameBoard[8].getValue()
         ) {
-          EndGame(elementWinner);
+          this.EndGame(this.gameBoard[0].getValue(), 0, 4, 8);
+        }
+        if (
+          this.gameBoard[2].getValue() !== "" &&
+          this.gameBoard[2].getValue() === this.gameBoard[4].getValue() &&
+          this.gameBoard[2].getValue() === this.gameBoard[6].getValue()
+        ) {
+          this.EndGame(this.gameBoard[2].getValue(), 2, 4, 6);
         }
       }
-    }
-    for (let y = 0; y < 3; y++) {
-      let elementWinner = gameBoard.getValueI(y);
-      if (elementWinner !== "") {
-        if (
-          elementWinner === gameBoard.getValueI(y + 3) &&
-          elementWinner === gameBoard.getValueI(y + 6)
-        ) {
-          EndGame(elementWinner);
-        }
+      if (this.moves === 9 && this.gameOver === false) {
+        this.gameOver = true;
+        this.status.textContent = `This is a draw`;
       }
-    }
-    if (
-      gameBoard.getValueI(0) !== "" &&
-      gameBoard.getValueI(0) === gameBoard.getValueI(4) &&
-      gameBoard.getValueI(0) === gameBoard.getValueI(8)
-    ) {
-      EndGame(gameBoard.getValueI(0));
-    }
-    if (
-      gameBoard.getValueI(2) !== "" &&
-      gameBoard.getValueI(2) === gameBoard.getValueI(4) &&
-      gameBoard.getValueI(2) === gameBoard.getValueI(6)
-    ) {
-      EndGame(gameBoard.getValueI(2));
-    }
-  }
-  if (moves === 9 && gameOver === false) {
-    gameOver = true;
-    status.textContent = `This is a draw`;
-  }
-}
+    },
 
-function EndGame(valWinner) {
-  gameOver = true;
-  status.textContent = `The Winner is ${valWinner}`;
-  turn.textContent = "Congratulations!!!";
-}
+    EndGame: function (valWinner, a, b, c) {
+      this.gameOver = true;
+      this.status.textContent = `The Winner is ${valWinner}`;
+      this.turn.textContent = "Congratulations!!!";
+      this.squares.forEach((element) => {
+        if (
+          Number(element.id) === a ||
+          Number(element.id) === b ||
+          Number(element.id) === c
+        ) {
+          element.style.backgroundColor = "orange";
+        }
+      });
+    },
 
-function reset() {
-  status.textContent = `Choose "X" or "O", remember always start the "X"`;
-  turn.textContent = "X starts";
-  gameBoard.clean();
-  Xterm = true;
-  moves = 0;
-  gameOver = false;
-  squares.forEach((element) => (element.textContent = ""));
-}
+    reset: function () {
+      this.status.textContent = `Choose "X" or "O", remember always start the "X"`;
+      this.turn.textContent = "X starts";
+      this.Xterm = true;
+      this.moves = 0;
+      this.gameOver = false;
+      this.squares.forEach((element) => {
+        element.textContent = "";
+        element.style.backgroundColor = "grey";
+      });
+      for (let y = 0; y < 9; y++) {
+        this.gameBoard[y].cleanValue();
+      }
+    },
+  };
+
+  playTTT.init();
+})();
